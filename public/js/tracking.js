@@ -27,3 +27,4 @@ TrkTracking = {
     img.src = 'http://trk.wvvw.me/pixel.gif?' + params.join('&');
   }
 };
+TrkTracking.track();
