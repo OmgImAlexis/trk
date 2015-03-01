@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function(req, res){
-    res.send('<script src="/js/tracking.js"></script>');
+    res.send('<script src="http://trk.wvvw.me/js/tracking.js"></script>');
 });
 
 app.get('/pixel.gif', function(req, res) {

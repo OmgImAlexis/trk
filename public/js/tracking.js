@@ -24,6 +24,6 @@ TrkTracking = {
     }
 
     var img = new Image();
-    img.src = 'http://localhost:3000/pixel.gif?' + params.join('&');
+    img.src = 'http://trk.wvvw.me/pixel.gif?' + params.join('&');
   }
 };
