@@ -37,6 +37,7 @@ app.get('/pixel.gif', function(req, res) {
     buf.write("R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=", "base64");
     res.send(buf, { 'Content-Type': 'image/gif' }, 200);
     var data = JSON.parse(JSON.stringify(req.query));
+    data.ip = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'];
     delete data.width;
     delete data.height;
     delete data.url;
@@ -47,18 +48,18 @@ app.get('/pixel.gif', function(req, res) {
         if (!visitor) {
             var newVisitor = new Visitor({
                 guid: req.query.guid,
-                ip: req.headers['cf-connecting-ip']
+                ip: `data.ip`
             });
             newVisitor.save(function(err, visitor){
                 if (err) console.log(err);
             });
             finished();
         } else {
-            if(visitor.ip != req.headers['cf-connecting-ip']) {
-                Visitor.update({guid: req.query.guid}, {$set: {ip: req.headers['cf-connecting-ip']}}, function(err, visitor){
+            if(visitor.ip != data.ip) {
+                Visitor.update({guid: req.query.guid}, {$set: {ip: data.ip}}, function(err, visitor){
                     if (err) console.log(err);
                     if(visitor == 1) {
-                        console.log('Visitor\'s IP updated to: ' + req.headers['cf-connecting-ip']);
+                        console.log('Visitor\'s IP updated to: ' + data.ip);
                     }
                 });
             }
@@ -67,7 +68,7 @@ app.get('/pixel.gif', function(req, res) {
         function doContinue(){
             var metric = new Metric({
                 visitor: {
-                    ip: req.headers['cf-connecting-ip']
+                    ip: data.ip
                 },
                 page: {
                     width: req.query.width,
