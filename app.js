@@ -94,9 +94,6 @@ app.get('/metrics', function(req, res) {
     { $limit: 100 }], function(err, metrics){
         res.send(metrics);
     });
-    // Metric.find().limit(100).exec(function(err, metrics) {
-    //     res.send(metrics);
-    // });
 });
 
 app.get('/visitors', function(req, res) {
@@ -106,9 +103,15 @@ app.get('/visitors', function(req, res) {
     { $limit: 100 }], function(err, visitors){
         res.send(visitors);
     });
-    // Metric.find().limit(100).exec(function(err, metrics) {
-    //     res.send(metrics);
-    // });
+});
+
+app.get('/visitor/:guid', function(req, res){
+    Metrics.aggregate([
+    { $match: { eventData.guid:req.query.guid } },
+    { $sort: { _id: -1 } },
+    { $limit: 100 }], function(err, metrics){
+        res.send(metrics);
+    });
 });
 
 app.listen(3000);
