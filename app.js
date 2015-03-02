@@ -1,6 +1,7 @@
 var express = require('express'),
     bodyParser = require('body-parser'),
     mongoose = require('mongoose'),
+    _ = require('underscore'),
     Metric = require('./models/Metric');
     Visitor = require('./models/Visitor');
 
@@ -43,6 +44,7 @@ app.get('/pixel.gif', function(req, res) {
     delete data.ref;
     Visitor.find({guid: req.query.guid}, function(err, visitor){
         if (err) console.log(err);
+        var finished = _.after(1, doContinue);
         if (!visitor) {
             var visitor = new Visitor({
                 guid: req.query.guid,
@@ -52,6 +54,7 @@ app.get('/pixel.gif', function(req, res) {
                 if (err) console.log(err);
                 console.log(visitor);
             });
+            finished();
         } else {
             if(visitor.ip != req.headers['cf-connecting-ip']) {
                 Visitor.update({guid: req.query.guid}, {$set: {ip: req.headers['cf-connecting-ip']}}, function(err, visitor){
@@ -61,23 +64,27 @@ app.get('/pixel.gif', function(req, res) {
                     }
                 });
             }
+            finished();
         }
-        var metric = new Metric({
-            visitor: {
-                ip: req.headers['cf-connecting-ip']
-            },
-            page: {
-                width: req.query.width,
-                height: req.query.height,
-                url: req.query.url,
-                ref: req.query.ref
-            },
-            eventData: data
-        });
-        metric.save(function(err, metric){
-            if (err) console.log(err);
-            console.log('Metric saved!');
-        });
+        function doContinue(){
+            var metric = new Metric({
+                visitor: {
+                    ip: req.headers['cf-connecting-ip']
+                },
+                page: {
+                    width: req.query.width,
+                    height: req.query.height,
+                    url: req.query.url,
+                    ref: req.query.ref
+                },
+                eventData: data
+            });
+            metric.save(function(err, metric){
+                if (err) console.log(err);
+                console.log('Metric saved!');
+            });
+
+        };
     });
 });
 
