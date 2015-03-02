@@ -2,6 +2,7 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     mongoose = require('mongoose'),
     Metric = require('./models/Metric');
+    Visitor = require('./models/Visitor');
 
 app = express();
 mongoose.connect('mongodb://localhost/trk'),
@@ -28,6 +29,7 @@ if (env != 'dev') {
 
 app.get('/', function(req, res){
     res.render('index');
+    console.log(req.headers);
 });
 
 app.get('/pixel.gif', function(req, res) {
@@ -39,18 +41,42 @@ app.get('/pixel.gif', function(req, res) {
     delete data.height;
     delete data.url;
     delete data.ref;
-    var metric = new Metric({
-          page: {
-              width: req.query.width,
-              height: req.query.height,
-              url: req.query.url,
-              ref: req.query.ref
-          },
-          eventData: data
-    });
-    metric.save(function(err, metric){
-        if (err) console.log(err);
-        console.log('Metric saved!');
+    Visitor.find({guid: req.query.guid}, function(err, visitor){
+        if (!visitor) {
+            var visitor = new Visitor({
+                guid: req.query.guid,
+                ip: req.headers['cf-connecting-ip']
+            });
+            visitor.save(function(err, visitor){
+                if (err) console.log(err);
+                console.log(visitor);
+            });
+        } else {
+            if(visitor.ip != req.headers['cf-connecting-ip']) {
+                Visitor.update({guid: req.query.guid}, {$set: {ip: req.headers['cf-connecting-ip']}}, function(err, visitor){
+                    if (err) console.log(err);
+                    if(visitor == 1) {
+                        console.log('Visitor\'s IP updated to: ' + req.headers['cf-connecting-ip']);
+                    }
+                });
+            }
+        }
+        var metric = new Metric({
+            visitor: {
+                ip: req.headers['cf-connecting-ip']
+            },
+            page: {
+                width: req.query.width,
+                height: req.query.height,
+                url: req.query.url,
+                ref: req.query.ref
+            },
+            eventData: data
+        });
+        metric.save(function(err, metric){
+            if (err) console.log(err);
+            console.log('Metric saved!');
+        });
     });
 });
 
@@ -60,6 +86,18 @@ app.get('/metrics', function(req, res) {
     { $sort: { _id: -1 } },
     { $limit: 100 }], function(err, metrics){
         res.send(metrics);
+    });
+    // Metric.find().limit(100).exec(function(err, metrics) {
+    //     res.send(metrics);
+    // });
+});
+
+app.get('/visitors', function(req, res) {
+    Visitor.aggregate([
+    { $match: {} },
+    { $sort: { _id: -1 } },
+    { $limit: 100 }], function(err, visitors){
+        res.send(visitors);
     });
     // Metric.find().limit(100).exec(function(err, metrics) {
     //     res.send(metrics);
