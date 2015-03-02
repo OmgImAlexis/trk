@@ -12,19 +12,19 @@ app.use(bodyParser.urlencoded({
 }));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/public', { redirect : false }));
 
 var env = process.env.NODE_ENV || 'production';
 
-// if (env != 'dev') {
-//     app.use(function(req, res, next) {
-//         if((!req.secure) && (req.get('X-Forwarded-Proto') !== 'https')) {
-//             res.redirect('https://' + req.get('Host') + req.url);
-//         } else {
-//             next();
-//         }
-//     });
-// }
+if (env != 'dev') {
+    app.use(function(req, res, next) {
+        if((!req.secure) && (req.get('X-Forwarded-Proto') !== 'https')) {
+            res.redirect('https://' + req.get('Host') + req.url);
+        } else {
+            next();
+        }
+    });
+}
 
 app.get('/', function(req, res){
     res.render('index');
