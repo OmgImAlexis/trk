@@ -44,7 +44,7 @@ app.get('/pixel.gif', function(req, res) {
     Visitor.findOne({guid: req.query.guid}, function(err, visitor){
         if (err) console.log(err);
         var finished = _.after(1, doContinue);
-        if (!visitor.length) {
+        if (!visitor) {
             var newVisitor = new Visitor({
                 guid: req.query.guid,
                 ip: req.headers['cf-connecting-ip']
