@@ -12,6 +12,7 @@ app.use(bodyParser.urlencoded({
 }));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
+app.use(express.static(__dirname + '/public'));
 
 var env = process.env.NODE_ENV || 'production';
 
@@ -24,7 +25,6 @@ if (env != 'dev') {
         }
     });
 }
-app.use(express.static(__dirname + '/public'));
 
 app.get('/', function(req, res){
     res.render('index');
@@ -55,9 +55,15 @@ app.get('/pixel.gif', function(req, res) {
 });
 
 app.get('/metrics', function(req, res) {
-    Metric.find({}).sort({'_id': -1}).limit(10).exec(function(err, metrics) {
+    Metric.aggregate([
+    { $match: {} },
+    { $sort: { _id: -1 } },
+    { $limit: 100 }], function(err, metrics){
         res.send(metrics);
     });
+    // Metric.find().limit(100).exec(function(err, metrics) {
+    //     res.send(metrics);
+    // });
 });
 
 app.listen(3000);
