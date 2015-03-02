@@ -107,10 +107,21 @@ app.get('/visitors', function(req, res) {
 
 app.get('/visitor/:guid', function(req, res){
     Metric.aggregate([
-    { $match: { 'eventData.guid': req.query.guid } },
+    { $match: { 'eventData.guid': req.params.guid } },
     { $sort: { _id: -1 } },
     { $limit: 100 }], function(err, metrics){
         res.send(metrics);
+    });
+});
+
+app.get('/site/:url', function(req, res){
+    var unique = req.query.unique ? true : false;
+    Metric.find({'page.url': new RegExp(req.params.url, 'i'), 'page.ref': {$exists: unique}}).exec(function(err, metrics){
+        var data = {
+            count: Object.keys(metrics).length,
+            metrics: metrics
+        };
+        res.send(data);
     });
 });
 

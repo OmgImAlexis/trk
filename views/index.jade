@@ -3,6 +3,13 @@ html
         title='Trk Tracking'
         script(src="/js/tracking.js")
     body
+        p
+            | To start tracking add this to your site, keep in mind that this is an alpha and I can't guarantee anything will continue working.
+            | <br>Please only use https(SSL) for the tracking.js as http will most probably create redirection loops.
+            | <br>If you'd like to help with this project please checkout the repo on
+            |  
+            a(href="http://github.com/omgimalexis/trk") Github
+            | .
         pre.code.
             (function() {
                 var trk = document.createElement('script'); trk.type = 'text/javascript'; trk.async = true;
