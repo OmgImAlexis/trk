@@ -42,6 +42,7 @@ app.get('/pixel.gif', function(req, res) {
     delete data.url;
     delete data.ref;
     Visitor.find({guid: req.query.guid}, function(err, visitor){
+        if (err) console.log(err);
         if (!visitor) {
             var visitor = new Visitor({
                 guid: req.query.guid,
