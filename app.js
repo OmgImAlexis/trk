@@ -107,7 +107,7 @@ app.get('/visitors', function(req, res) {
 
 app.get('/visitor/:guid', function(req, res){
     Metrics.aggregate([
-    { $match: { eventData.guid:req.query.guid } },
+    { $match: { eventData.guid: req.query.guid } },
     { $sort: { _id: -1 } },
     { $limit: 100 }], function(err, metrics){
         res.send(metrics);
