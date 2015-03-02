@@ -41,17 +41,16 @@ app.get('/pixel.gif', function(req, res) {
     delete data.height;
     delete data.url;
     delete data.ref;
-    Visitor.find({guid: req.query.guid}, function(err, visitor){
+    Visitor.findOne({guid: req.query.guid}, function(err, visitor){
         if (err) console.log(err);
         var finished = _.after(1, doContinue);
-        if (!visitor) {
+        if (!visitor.length) {
             var newVisitor = new Visitor({
                 guid: req.query.guid,
                 ip: req.headers['cf-connecting-ip']
             });
             newVisitor.save(function(err, visitor){
                 if (err) console.log(err);
-                console.log(visitor);
             });
             finished();
         } else {
