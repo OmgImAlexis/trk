@@ -30,7 +30,6 @@ if (env != 'dev') {
 
 app.get('/', function(req, res){
     res.render('index');
-    console.log(req.headers);
 });
 
 app.get('/pixel.gif', function(req, res) {
@@ -46,11 +45,11 @@ app.get('/pixel.gif', function(req, res) {
         if (err) console.log(err);
         var finished = _.after(1, doContinue);
         if (!visitor) {
-            var visitor = new Visitor({
+            var newVisitor = new Visitor({
                 guid: req.query.guid,
                 ip: req.headers['cf-connecting-ip']
             });
-            visitor.save(function(err, visitor){
+            newVisitor.save(function(err, visitor){
                 if (err) console.log(err);
                 console.log(visitor);
             });
