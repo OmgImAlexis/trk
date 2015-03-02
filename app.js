@@ -10,10 +10,24 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+
+var env = process.env.NODE_ENV || 'production';
+
+if (env != 'dev') {
+    app.use(function(req, res, next) {
+        if((!req.secure) && (req.get('X-Forwarded-Proto') !== 'https')) {
+            res.redirect('https://' + req.get('Host') + req.url);
+        } else {
+            next();
+        }
+    });
+}
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function(req, res){
-    res.send('<script src="http://trk.wvvw.me/js/tracking.js"></script>');
+    res.render('index');
 });
 
 app.get('/pixel.gif', function(req, res) {
