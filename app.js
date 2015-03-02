@@ -48,7 +48,7 @@ app.get('/pixel.gif', function(req, res) {
         if (!visitor) {
             var newVisitor = new Visitor({
                 guid: req.query.guid,
-                ip: `data.ip`
+                ip: data.ip
             });
             newVisitor.save(function(err, visitor){
                 if (err) console.log(err);
