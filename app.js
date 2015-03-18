@@ -127,10 +127,21 @@ app.get('/site/:url', function(req, res){
 });
 
 app.get('/urls', function(req, res){
-    Metric.find({}, 'page.ref', function (err, urls) {
-        res.send({
-            urls: urls
-        });
+    Metric.find({}, 'page.ref', function (err, data) {
+        var urls = [];
+        var finished = _.after(data.length, doFinish);
+        for (var key in data.urls) {
+            if (data.urls.hasOwnProperty(key)) {
+                if (data.urls[key.page].ref) {
+                    u.push(data.urls[key].page.ref);
+                }
+            }
+        }
+        function doFinish() {
+            res.send({
+                urls: urls
+            });
+        }
     });
 });
 
