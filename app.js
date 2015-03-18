@@ -116,7 +116,8 @@ app.get('/visitor/:guid', function(req, res){
 
 app.get('/site/:url', function(req, res){
     var unique = req.query.unique ? true : false;
-    Metric.find({'page.url': new RegExp(req.params.url, 'i'), 'page.ref': {$exists: unique}}).exec(function(err, metrics){
+    var limit = req.query.limit ? req.query.limit : 100;
+    Metric.find({'page.url': new RegExp(req.params.url, 'i'), 'page.ref': {$exists: unique}}).limit(limit).exec(function(err, metrics){
         var data = {
             count: Object.keys(metrics).length,
             metrics: metrics
