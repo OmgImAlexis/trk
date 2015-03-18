@@ -127,11 +127,11 @@ app.get('/site/:url', function(req, res){
 });
 
 app.get('/urls', function(req, res){
-    Metric.find({}, ['page.ref'], function (err, urls) {
+    Metric.find({}, 'page.ref', function (err, urls) {
         res.send({
             urls: urls
         });
     });
 });
 
-app.listen(3000);
+app.listen(4000);
