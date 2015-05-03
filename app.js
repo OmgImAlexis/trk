@@ -103,8 +103,9 @@ app.get('/blog/:blog_url', function(req, res) {
 
 app.get('/blog/:blog_url/hits', function(req, res) {
     Metric.count({ 'eventData.blog_url': req.params.blog_url }, function(err, hits){
-        res.setHeader("Content-Type", "application/javascript");
-        res.send('document.write("' + hits + '");');
+        res.jsonp({
+            hits: hits
+        });
     });
 });
 //
