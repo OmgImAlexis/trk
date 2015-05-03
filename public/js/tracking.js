@@ -7,10 +7,19 @@ if (navigator.doNotTrack == "yes" || navigator.doNotTrack == "1" || navigator.ms
     // http://clubmate.fi/setting-and-reading-cookies-with-javascript/
     function createCookie(e,t,n){var o;if(n){var i=new Date;i.setTime(i.getTime()+24*n*60*60*1e3),o="; expires="+i.toGMTString()}else o="";document.cookie=e+"="+t+o+"; path=/"}function readCookie(e){for(var t=e+"=",n=document.cookie.split(";"),o=0;o<n.length;o++){for(var i=n[o];" "===i.charAt(0);)i=i.substring(1,i.length);if(0===i.indexOf(t))return i.substring(t.length,i.length)}return null}function eraseCookie(e){createCookie(e,"",-1)}
     TrkTracking = {
-        track: function(env) {
-            if(typeof(env) == "undefined") { env = {}; }
+        track: function(options) {
+            var settings = $.extend({
+                hitCounter: false,
+                hitCounterText: ' views',
+                onlineCounter: false,
+                onlineCounterSingleText: ' user online',
+                onlineCounterMultipleText: ' users online',
+                followerCounter: false,
+                followerCounterText: ' followers',
+                topPosition: 28
+            }, options);
             $.getScript('/api/read/json', function(){
-                // send some miscellaneous info about the request
+                var env = {};
                 env.width = window.screen.width;
                 env.height = window.screen.height;
                 env.path = window.location.pathname;
@@ -27,16 +36,57 @@ if (navigator.doNotTrack == "yes" || navigator.doNotTrack == "1" || navigator.ms
 
                 var params = [];
                 for(var key in env) {
-                  if(env.hasOwnProperty(key)) {
-                    params.push(encodeURIComponent(key) + "=" + encodeURIComponent(env[key]));
-                  }
+                    if(env.hasOwnProperty(key)) {
+                        params.push(encodeURIComponent(key) + "=" + encodeURIComponent(env[key]));
+                    }
                 }
 
                 var img = new Image();
                 img.src = 'https://trk.wvvw.me/pixel.gif?' + params.join('&');
+                if (settings.hitCounter) {
+                    $.ajax({
+                        url: 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name + '/hits?json=true',
+                        dataType: 'jsonp',
+                        success: function(data){
+                            var a = document.createElement('a');
+                            a.href = 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name;
+                            a.text = data.hits + settings.hitCounterText;
+                            a.className = 'btn';
+                            a.style.cssText = 'position:fixed;top:28px;right:3px;';
+                            document.getElementsByTagName('body')[0].appendChild(a);
+                        }
+                    });
+                }
+                if (settings.onlineCounter) {
+                    $.ajax({
+                        url: 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name + '/online?json=true',
+                        dataType: 'jsonp',
+                        success: function(data){
+                            var a = document.createElement('a');
+                            a.href = 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name;
+                            a.text = data.hits + settings.onlineCounterText;
+                            a.className = 'btn';
+                            a.style.cssText = 'position:fixed;top:28px;right:3px;';
+                            document.getElementsByTagName('body')[0].appendChild(a);
+                        }
+                    });
+                }
+                if (settings.followerCounter) {
+                    $.ajax({
+                        url: 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name + '/followers?json=true',
+                        dataType: 'jsonp',
+                        success: function(data){
+                            var a = document.createElement('a');
+                            a.href = 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name;
+                            a.text = data.hits + settings.followerCounterText;
+                            a.className = 'btn';
+                            a.style.cssText = 'position:fixed;top:28px;right:3px;';
+                            document.getElementsByTagName('body')[0].appendChild(a);
+                        }
+                    });
+                }
             });
         }
     };
-    TrkTracking.track();
 }
 console.log('Checkout https://trk.wvvw.me to learn more.');
