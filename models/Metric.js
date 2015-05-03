@@ -4,12 +4,10 @@ var metricSchema = new mongoose.Schema({
     visitor: {
         ip: String
     },
-    page: {
-        width: Number,
-        height: Number,
-        url: String,
-        ref: String
-    },
+    width: Number,
+    height: Number,
+    path: String,
+    ref: String,
     eventData: Object
 });
 

@@ -70,12 +70,10 @@ app.get('/pixel.gif', function(req, res) {
                 visitor: {
                     ip: data.ip
                 },
-                page: {
-                    width: req.query.width,
-                    height: req.query.height,
-                    url: req.query.url,
-                    ref: req.query.ref
-                },
+                width: req.query.width,
+                height: req.query.height,
+                path: req.query.path,
+                ref: req.query.ref,
                 eventData: data
             });
             metric.save(function(err, metric){
@@ -96,53 +94,68 @@ app.get('/metrics', function(req, res) {
     });
 });
 
-app.get('/visitors', function(req, res) {
-    Visitor.aggregate([
-    { $match: {} },
+app.get('/blog/:blog_url', function(req, res) {
+    Metric.aggregate([
+    { $match: { blog_url: req.query.blog_url } },
     { $sort: { _id: -1 } },
     { $limit: 100 }], function(err, visitors){
         res.send(visitors);
     });
 });
 
-app.get('/visitor/:guid', function(req, res){
-    Metric.aggregate([
-    { $match: { 'eventData.guid': req.params.guid } },
-    { $sort: { _id: -1 } },
-    { $limit: 100 }], function(err, metrics){
-        res.send(metrics);
+app.get('/blog/:blog_url/hits', function(req, res) {
+    Metric.count({ blog_url: req.query.blog_url }, function(err, hits){
+        res.send('document.write("' + hits + '");');
     });
 });
-
-app.get('/site/:url', function(req, res){
-    var unique = req.query.unique ? true : false;
-    var limit = req.query.limit ? req.query.limit : 100;
-    Metric.find({'page.url': new RegExp(req.params.url, 'i'), 'page.ref': {$exists: unique}}).limit(limit).exec(function(err, metrics){
-        var data = {
-            count: Object.keys(metrics).length,
-            metrics: metrics
-        };
-        res.send(data);
-    });
-});
-
-app.get('/urls', function(req, res){
-    Metric.find({}, 'page.ref', function (err, data) {
-        var urls = [];
-        var finished = _.after(data.length, doFinish);
-        for (var key in data.urls) {
-            if (data.urls.hasOwnProperty(key)) {
-                if (data.urls[key.page].ref) {
-                    u.push(data.urls[key].page.ref);
-                }
-            }
-        }
-        function doFinish() {
-            res.send({
-                urls: urls
-            });
-        }
-    });
-});
+//
+// app.get('/visitors', function(req, res) {
+//     Visitor.aggregate([
+//     { $match: {} },
+//     { $sort: { _id: -1 } },
+//     { $limit: 100 }], function(err, visitors){
+//         res.send(visitors);
+//     });
+// });
+//
+// app.get('/visitor/:guid', function(req, res){
+//     Metric.aggregate([
+//     { $match: { 'eventData.guid': req.params.guid } },
+//     { $sort: { _id: -1 } },
+//     { $limit: 100 }], function(err, metrics){
+//         res.send(metrics);
+//     });
+// });
+//
+// app.get('/site/:url', function(req, res){
+//     var unique = req.query.unique ? true : false;
+//     var limit = req.query.limit ? req.query.limit : 100;
+//     Metric.find({'page.url': new RegExp(req.params.url, 'i'), 'page.ref': {$exists: unique}}).limit(limit).exec(function(err, metrics){
+//         var data = {
+//             count: Object.keys(metrics).length,
+//             metrics: metrics
+//         };
+//         res.send(data);
+//     });
+// });
+//
+// app.get('/urls', function(req, res){
+//     Metric.find({}, 'page.ref', function (err, data) {
+//         var urls = [];
+//         var finished = _.after(data.length, doFinish);
+//         for (var key in data.urls) {
+//             if (data.urls.hasOwnProperty(key)) {
+//                 if (data.urls[key.page].ref) {
+//                     u.push(data.urls[key].page.ref);
+//                 }
+//             }
+//         }
+//         function doFinish() {
+//             res.send({
+//                 urls: urls
+//             });
+//         }
+//     });
+// });
 
 app.listen(4000);
