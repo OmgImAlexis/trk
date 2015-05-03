@@ -95,13 +95,14 @@ app.get('/metrics', function(req, res) {
 });
 
 app.get('/blog/:blog_url', function(req, res) {
-    Metric.find({ 'eventData.blog_url': req.query.blog_url }).sort({ _id: -1 }).limit(100).exec(function(err, visitors){
+    console.log(req.params.blog_url);
+    Metric.find({ 'eventData.blog_url': req.params.blog_url }).sort({ _id: -1 }).limit(100).exec(function(err, visitors){
         res.send(visitors);
     });
 });
 
 app.get('/blog/:blog_url/hits', function(req, res) {
-    Metric.count({ 'eventData.blog_url': req.query.blog_url }, function(err, hits){
+    Metric.count({ 'eventData.blog_url': req.params.blog_url }, function(err, hits){
         res.send('document.write("' + hits + '");');
     });
 });
