@@ -95,7 +95,7 @@ app.get('/metrics', function(req, res) {
 });
 
 app.get('/blog/:blog_url', function(req, res) {
-    Metric.find({ blog_url: req.query.blog_url }).sort({ _id: -1 }).limit(100).exec(function(err, visitors){
+    Metric.find({ 'eventData.blog_url': req.query.blog_url }).sort({ _id: -1 }).limit(100).exec(function(err, visitors){
         res.send(visitors);
     });
 });
