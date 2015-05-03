@@ -95,10 +95,7 @@ app.get('/metrics', function(req, res) {
 });
 
 app.get('/blog/:blog_url', function(req, res) {
-    Metric.aggregate([
-    { $match: { blog_url: req.query.blog_url } },
-    { $sort: { _id: -1 } },
-    { $limit: 100 }], function(err, visitors){
+    Metric.find({ blog_url: req.query.blog_url }).sort({ id: -1 }).limit(100).exec(function(err, visitors){
         res.send(visitors);
     });
 });
