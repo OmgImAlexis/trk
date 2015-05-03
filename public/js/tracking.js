@@ -33,7 +33,7 @@ if (navigator.doNotTrack == "yes" || navigator.doNotTrack == "1" || navigator.ms
                 }
 
                 var img = new Image();
-                img.src = 'http://192.168.1.158:4000/pixel.gif?' + params.join('&');
+                img.src = 'https://trk.wvvw.me/pixel.gif?' + params.join('&');
             });
         }
     };
