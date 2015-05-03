@@ -101,7 +101,7 @@ app.get('/blog/:blog_url', function(req, res) {
 });
 
 app.get('/blog/:blog_url/hits', function(req, res) {
-    Metric.count({ blog_url: req.query.blog_url }, function(err, hits){
+    Metric.count({ 'eventData.blog_url': req.query.blog_url }, function(err, hits){
         res.send('document.write("' + hits + '");');
     });
 });
