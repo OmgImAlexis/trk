@@ -24,7 +24,7 @@ if (navigator.doNotTrack == "yes" || navigator.doNotTrack == "1" || navigator.ms
             env.path = window.location.pathname;
             env.domain = window.location.hostname;
             if ($('link[rel="alternate"][href^="android-app"]').length) {
-                env.blog_url = $('link[rel="alternate"][href^="android-app"]').attr('href').split("?").pop().split("=").pop();
+                env.blog_url = decodeURIComponent($('link[rel="alternate"][href^="android-app"]').attr('href')).split("?").pop().split("&").shift().split("=").pop();
             }
 
             if(document.referrer && document.referrer != "") {
