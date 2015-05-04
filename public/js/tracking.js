@@ -64,9 +64,9 @@ if (navigator.doNotTrack == "yes" || navigator.doNotTrack == "1" || navigator.ms
                         success: function(data){
                             var a = document.createElement('a');
                             a.href = 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name;
-                            a.text = data.hits + settings.onlineCounterText;
+                            a.text = data.online + settings.onlineCounterText;
                             a.className = 'btn';
-                            a.style.cssText = 'position:fixed;top:28px;right:3px;';
+                            a.style.cssText = 'position:fixed;top:50px;right:3px;';
                             document.getElementsByTagName('body')[0].appendChild(a);
                         }
                     });
@@ -78,9 +78,9 @@ if (navigator.doNotTrack == "yes" || navigator.doNotTrack == "1" || navigator.ms
                         success: function(data){
                             var a = document.createElement('a');
                             a.href = 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name;
-                            a.text = data.hits + settings.followerCounterText;
+                            a.text = data.followers + settings.followerCounterText;
                             a.className = 'btn';
-                            a.style.cssText = 'position:fixed;top:28px;right:3px;';
+                            a.style.cssText = 'position:fixed;top:72px;right:3px;';
                             document.getElementsByTagName('body')[0].appendChild(a);
                         }
                     });
