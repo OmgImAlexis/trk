@@ -2,8 +2,9 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     mongoose = require('mongoose'),
     _ = require('underscore'),
-    Metric = require('./models/Metric');
-    Visitor = require('./models/Visitor');
+    Metric = require('./models/Metric'),
+    Visitor = require('./models/Visitor'),
+    Session = require('./models/Session');
 
 app = express();
 mongoose.connect('mongodb://localhost/trk'),
@@ -42,9 +43,10 @@ app.get('/pixel.gif', function(req, res) {
     delete data.height;
     delete data.url;
     delete data.ref;
+    delete data.path;
     Visitor.findOne({guid: req.query.guid}, function(err, visitor){
         if (err) console.log(err);
-        var finished = _.after(1, doContinue);
+        var finished = _.after(2, doContinue);
         if (!visitor) {
             var newVisitor = new Visitor({
                 guid: req.query.guid,
@@ -65,6 +67,22 @@ app.get('/pixel.gif', function(req, res) {
             }
             finished();
         }
+        Session.findOne({guid: req.query.guid}, function(err, session) {
+            if(!err) {
+                if(!session) {
+                    session = new Session({
+                        guid: req.query.guid,
+                        blog_url: req.query.blog_url
+                    });
+                }
+                session.lastOnline = new Date();
+                session.save(function(err) {
+                    if(err) console.log(err);
+                    console.log('session saved');
+                });
+                finished();
+            }
+        });
         function doContinue(){
             var metric = new Metric({
                 visitor: {
@@ -104,6 +122,14 @@ app.get('/blog/:blog_url/hits', function(req, res) {
     Metric.count({ 'eventData.blog_url': req.params.blog_url }, function(err, hits){
         res.jsonp({
             hits: hits
+        });
+    });
+});
+
+app.get('/blog/:blog_url/online', function(req, res) {
+    Session.count({ blog_url: req.params.blog_url }, function(err, online){
+        res.jsonp({
+            online: online
         });
     });
 });
