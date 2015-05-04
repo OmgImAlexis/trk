@@ -48,11 +48,11 @@ if (navigator.doNotTrack == "yes" || navigator.doNotTrack == "1" || navigator.ms
             // img.src = 'http://localhost:4000/pixel.gif?' + params.join('&');
             if (settings.hitCounter) {
                 $.ajax({
-                    url: 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name + '/hits?json=true',
+                    url: 'https://trk.wvvw.me/blog/' + env.blog_url + '/hits?json=true',
                     dataType: 'jsonp',
                     success: function(data){
                         var a = document.createElement('a');
-                        a.href = 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name;
+                        a.href = 'https://trk.wvvw.me/blog/' + env.blog_url;
                         a.text = data.hits + settings.hitCounterText;
                         a.className = 'btn';
                         a.style.cssText = 'position:fixed;top:28px;right:3px;';
@@ -62,11 +62,11 @@ if (navigator.doNotTrack == "yes" || navigator.doNotTrack == "1" || navigator.ms
             }
             if (settings.onlineCounter) {
                 $.ajax({
-                    url: 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name + '/online?json=true',
+                    url: 'https://trk.wvvw.me/blog/' + env.blog_url + '/online?json=true',
                     dataType: 'jsonp',
                     success: function(data){
                         var a = document.createElement('a');
-                        a.href = 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name;
+                        a.href = 'https://trk.wvvw.me/blog/' + env.blog_url;
                         a.text = (data.online == 0 ? '1' : data.online) + (data.online == 1 ? settings.onlineCounterSingleText : settings.onlineCounterMultipleText);
                         a.className = 'btn';
                         a.style.cssText = 'position:fixed;top:50px;right:3px;';
@@ -76,11 +76,11 @@ if (navigator.doNotTrack == "yes" || navigator.doNotTrack == "1" || navigator.ms
             }
             if (settings.followerCounter) {
                 $.ajax({
-                    url: 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name + '/followers?json=true',
+                    url: 'https://trk.wvvw.me/blog/' + env.blog_url + '/followers?json=true',
                     dataType: 'jsonp',
                     success: function(data){
                         var a = document.createElement('a');
-                        a.href = 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name;
+                        a.href = 'https://trk.wvvw.me/blog/' + env.blog_url;
                         a.text = data.followers + settings.followerCounterText;
                         a.className = 'btn';
                         a.style.cssText = 'position:fixed;top:72px;right:3px;';
