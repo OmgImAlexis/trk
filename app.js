@@ -71,11 +71,11 @@ app.get('/pixel.gif', function(req, res) {
             if(!err) {
                 if(!session) {
                     session = new Session({
-                        guid: req.query.guid,
-                        blog_url: req.query.blog_url
+                        guid: req.query.guid
                     });
                 }
                 session.lastOnline = new Date();
+                session.blog_url = req.query.blog_url;
                 session.save(function(err) {
                     if(err) console.log(err);
                     console.log('session saved');
