@@ -2,8 +2,8 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     mongoose = require('mongoose'),
     _ = require('underscore'),
+    async = require('async'),
     Metric = require('./models/Metric'),
-    Visitor = require('./models/Visitor'),
     Session = require('./models/Session');
 
 app = express();
@@ -17,18 +17,6 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 app.use(express.static(__dirname + '/public', { redirect : false }));
 
-var env = process.env.NODE_ENV || 'production';
-
-if (env != 'dev') {
-    app.use(function(req, res, next) {
-        if((!req.secure) && (req.get('X-Forwarded-Proto') !== 'https')) {
-            res.redirect('https://' + req.get('Host') + req.url);
-        } else {
-            next();
-        }
-    });
-}
-
 app.get('/', function(req, res){
     res.render('index');
 });
@@ -38,69 +26,44 @@ app.get('/pixel.gif', function(req, res) {
     buf.write("R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=", "base64");
     res.send(buf, { 'Content-Type': 'image/gif' }, 200);
     var data = JSON.parse(JSON.stringify(req.query));
-    data.ip = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'];
     delete data.width;
     delete data.height;
-    delete data.url;
+    delete data.domain;
     delete data.ref;
     delete data.path;
-    Visitor.findOne({guid: req.query.guid}, function(err, visitor){
-        if (err) console.log(err);
-        var finished = _.after(2, doContinue);
-        if (!visitor) {
-            var newVisitor = new Visitor({
-                guid: req.query.guid,
-                ip: data.ip
-            });
-            newVisitor.save(function(err, visitor){
-                if (err) console.log(err);
-            });
-            finished();
-        } else {
-            if(visitor.ip != data.ip) {
-                Visitor.update({guid: req.query.guid}, {$set: {ip: data.ip}}, function(err, visitor){
-                    if (err) console.log(err);
-                    if(visitor == 1) {
-                        console.log('Visitor\'s IP updated to: ' + data.ip);
-                    }
+    delete data.guid;
+    var finished = _.after(1, doContinue);
+    Session.findOne({guid: req.query.guid}, function(err, session) {
+        if(!err) {
+            if(!session) {
+                session = new Session({
+                    guid: req.query.guid
                 });
             }
+            session.lastOnline = new Date();
+            session.blog_url = req.query.blog_url;
+            session.save(function(err) {
+                if(err) console.log(err);
+            });
             finished();
         }
-        Session.findOne({guid: req.query.guid}, function(err, session) {
-            if(!err) {
-                if(!session) {
-                    session = new Session({
-                        guid: req.query.guid
-                    });
-                }
-                session.lastOnline = new Date();
-                session.blog_url = req.query.blog_url;
-                session.save(function(err) {
-                    if(err) console.log(err);
-                    console.log('session saved');
-                });
-                finished();
-            }
-        });
-        function doContinue(){
-            var metric = new Metric({
-                visitor: {
-                    ip: data.ip
-                },
-                width: req.query.width,
-                height: req.query.height,
-                path: req.query.path,
-                ref: req.query.ref,
-                eventData: data
-            });
-            metric.save(function(err, metric){
-                if (err) console.log(err);
-                console.log('Metric saved!');
-            });
-
-        };
     });
+    function doContinue(){
+        var metric = new Metric({
+            ip: req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'],
+            guid: req.query.guid,
+            width: req.query.width,
+            height: req.query.height,
+            domain: req.query.domain,
+            path: req.query.path,
+            ref: req.query.ref,
+            eventData: data
+        });
+        metric.save(function(err, metric){
+            if (err) console.log(err);
+        });
+
+    };
 });
 
 app.get('/metrics', function(req, res) {
@@ -113,45 +76,152 @@ app.get('/metrics', function(req, res) {
 });
 
 app.get('/blog/:blog_url', function(req, res) {
-    Metric.find({ 'eventData.blog_url': req.params.blog_url }).sort({ _id: -1 }).limit(100).exec(function(err, visitors){
-        res.send(visitors);
+    Metric.find({ 'eventData.blog_url': req.params.blog_url }).sort({ _id: -1 }).limit(100).exec(function(err, metrics){
+        res.send(metrics);
     });
 });
 
 app.get('/blog/:blog_url/hits', function(req, res) {
     Metric.count({ 'eventData.blog_url': req.params.blog_url }, function(err, hits){
-        res.jsonp({
-            hits: hits
-        });
+        if(req.query.callback || req.query.json){
+            res.jsonp({
+                hits: hits
+            });
+        } else {
+            var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            async.parallel([
+                function(callback){
+                    Metric.count({
+                        createdAt: {
+                            $gte: new Date(new Date().setDate(new Date().getDate()-1)),
+                            $lt: new Date(new Date().setDate(new Date().getDate()))
+                        }
+                    }).exec(function(err, count){
+                        if(err) console.log(err);
+                        callback(null, {
+                            'day': days[new Date().getDay()],
+                            'count': count
+                        });
+                    });
+                },
+                function(callback){
+                    Metric.count({
+                        createdAt: {
+                            $gte: new Date(new Date().setDate(new Date().getDate()-2)),
+                            $lt: new Date(new Date().setDate(new Date().getDate()-1))
+                        }
+                    }).exec(function(err, count){
+                        if(err) console.log(err);
+                        callback(null, {
+                            'day': days[new Date(new Date().setDate(new Date().getDate()-1)).getDay()],
+                            'count': count
+                        });
+                    });
+                },
+                function(callback){
+                    Metric.count({
+                        createdAt: {
+                            $gte: new Date(new Date().setDate(new Date().getDate()-3)),
+                            $lt: new Date(new Date().setDate(new Date().getDate()-2))
+                        }
+                    }).exec(function(err, count){
+                        if(err) console.log(err);
+                        callback(null,  {
+                            'day': days[new Date(new Date().setDate(new Date().getDate()-2)).getDay()],
+                            'count': count
+                        });
+                    });
+                },
+                function(callback){
+                    Metric.count({
+                        createdAt: {
+                            $gte: new Date(new Date().setDate(new Date().getDate()-3)),
+                            $lt: new Date(new Date().setDate(new Date().getDate()-4))
+                        }
+                    }).exec(function(err, count){
+                        if(err) console.log(err);
+                        callback(null,  {
+                            'day': days[new Date(new Date().setDate(new Date().getDate()-3)).getDay()],
+                            'count': count
+                        });
+                    });
+                },
+                function(callback){
+                    Metric.count({
+                        createdAt: {
+                            $gte: new Date(new Date().setDate(new Date().getDate()-4)),
+                            $lt: new Date(new Date().setDate(new Date().getDate()-5))
+                        }
+                    }).exec(function(err, count){
+                        if(err) console.log(err);
+                        callback(null,  {
+                            'day': days[new Date(new Date().setDate(new Date().getDate()-4)).getDay()],
+                            'count': count
+                        });
+                    });
+                },
+                function(callback){
+                    Metric.count({
+                        createdAt: {
+                            $gte: new Date(new Date().setDate(new Date().getDate()-5)),
+                            $lt: new Date(new Date().setDate(new Date().getDate()-6))
+                        }
+                    }).exec(function(err, count){
+                        if(err) console.log(err);
+                        callback(null,  {
+                            'day': days[new Date(new Date().setDate(new Date().getDate()-5)).getDay()],
+                            'count': count
+                        });
+                    });
+                },
+                function(callback){
+                    Metric.count({
+                        createdAt: {
+                            $gte: new Date(new Date().setDate(new Date().getDate()-6)),
+                            $lt: new Date(new Date().setDate(new Date().getDate()-7))
+                        }
+                    }).exec(function(err, count){
+                        if(err) console.log(err);
+                        callback(null,  {
+                            'day': days[new Date(new Date().setDate(new Date().getDate()-6)).getDay()],
+                            'count': count
+                        });
+                    });
+                }
+            ],
+            // optional callback
+            function(err, results){
+                var labels = [];
+                results.forEach(function(e){
+                    e.day == days[new Date().getDay()] ? labels.push("Today") : labels.push(e.day);
+                });
+                var data = [];
+                results.forEach(function(e){
+                    data.push(e.count);
+                });
+                res.render('blog/online', {
+                    labels: JSON.stringify(labels.reverse()),
+                    data: JSON.stringify(data.reverse()),
+                });
+            });
+        }
     });
 });
 
 app.get('/blog/:blog_url/online', function(req, res) {
     Session.count({ blog_url: req.params.blog_url }, function(err, online){
-        res.jsonp({
-            online: online
-        });
+        if(req.query.callback || req.query.json){
+            res.jsonp({
+                online: online
+            });
+        } else {
+            res.send({
+                todo: 'todo'
+            });
+        }
     });
 });
-//
-// app.get('/visitors', function(req, res) {
-//     Visitor.aggregate([
-//     { $match: {} },
-//     { $sort: { _id: -1 } },
-//     { $limit: 100 }], function(err, visitors){
-//         res.send(visitors);
-//     });
-// });
-//
-// app.get('/visitor/:guid', function(req, res){
-//     Metric.aggregate([
-//     { $match: { 'eventData.guid': req.params.guid } },
-//     { $sort: { _id: -1 } },
-//     { $limit: 100 }], function(err, metrics){
-//         res.send(metrics);
-//     });
-// });
-//
+
 // app.get('/site/:url', function(req, res){
 //     var unique = req.query.unique ? true : false;
 //     var limit = req.query.limit ? req.query.limit : 100;

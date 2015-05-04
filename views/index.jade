@@ -1,20 +1,8 @@
-html
-    head
-        title='Trk Tracking'
-        script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js")
-        script(src="/js/tracking.js")
-    body
-    -var a = function(href,text){ return "<a href='"+href+"'>"+text+"</a>" }
-        p
-            | To start tracking add this to your site, keep in mind that this is an alpha and I can't guarantee anything will continue working.
-            | <br>Please only use https(SSL) for the tracking.js as http will most probably create redirection loops.
-            | <br>If you'd like to help with this project please checkout the repo on !{a('http://github.com/omgimalexis/trk', 'Github')}.
-        | <br><br>
-        pre.code.
-            (function() {
-                var trk = document.createElement('script'); trk.type = 'text/javascript'; trk.async = true;
-                trk.src = 'https://trk.wvvw.me/js/tracking.js';
-                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(trk, s);
-            })();
-        | <br><br><br>
-        | The current end points are !{a('/metrics', 'Metrics')}, !{a('/visitors', 'Visitors')}, !{a('/visitor/5185690086171', 'Visitor/:visitor_guid')}, !{a('/site/trk.wvvw.me', 'Site/:site_url')}
+extends ./layout
+
+block content
+    p.
+        To start tracking click !{a('#TODO', 'here')}, keep in mind that this is an alpha and I can't guarantee anything will continue working.
+        <br>Please only use https(SSL) for the tracking.js as http will most probably create redirection loops.
+        <br>If you'd like to help with this project please checkout the repo on !{a('http://github.com/omgimalexis/trk', 'Github')}.
+        <br>The current end points are !{a('/metrics', 'Metrics')}, !{a('/blog/reblogalert/online', 'Online')} and !{a('/blog/reblogalert/hits', 'Hits')}

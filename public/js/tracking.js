@@ -18,74 +18,77 @@ if (navigator.doNotTrack == "yes" || navigator.doNotTrack == "1" || navigator.ms
                 followerCounterText: ' followers',
                 topPosition: 28
             }, options);
-            $.getScript('/api/read/json', function(){
-                var env = {};
-                env.width = window.screen.width;
-                env.height = window.screen.height;
-                env.path = window.location.pathname;
-                env.blog_url = tumblr_api_read.tumblelog.name;
+            var env = {};
+            env.width = window.screen.width;
+            env.height = window.screen.height;
+            env.path = window.location.pathname;
+            env.domain = window.location.hostname;
+            if ($('link[rel="alternate"][href^="android-app"]').length) {
+                env.blog_url = $('link[rel="alternate"][href^="android-app"]').attr('href').split("?").pop().split("=").pop();
+            }
 
-                if(document.referrer && document.referrer != "") {
-                    env.ref = document.referrer;
+            if(document.referrer && document.referrer != "") {
+                env.ref = document.referrer;
+            }
+
+            if(!readCookie('trk_guid')){
+                createCookie('trk_guid', (Math.floor(Math.random() * 10e12)), 30);
+            }
+            env.guid = readCookie('trk_guid');
+
+            var params = [];
+            for(var key in env) {
+                if(env.hasOwnProperty(key)) {
+                    params.push(encodeURIComponent(key) + "=" + encodeURIComponent(env[key]));
                 }
+            }
 
-                if(!readCookie('trk_guid')){
-                    createCookie('trk_guid', (Math.floor(Math.random() * 10e12)), 30);
-                }
-                env.guid = readCookie('trk_guid');
-
-                var params = [];
-                for(var key in env) {
-                    if(env.hasOwnProperty(key)) {
-                        params.push(encodeURIComponent(key) + "=" + encodeURIComponent(env[key]));
+            var img = new Image();
+            img.src = 'https://trk.wvvw.me/pixel.gif?' + params.join('&');
+            // img.src = 'http://localhost:4000/pixel.gif?' + params.join('&');
+            if (settings.hitCounter) {
+                $.ajax({
+                    url: 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name + '/hits?json=true',
+                    dataType: 'jsonp',
+                    success: function(data){
+                        var a = document.createElement('a');
+                        a.href = 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name;
+                        a.text = data.hits + settings.hitCounterText;
+                        a.className = 'btn';
+                        a.style.cssText = 'position:fixed;top:28px;right:3px;';
+                        document.getElementsByTagName('body')[0].appendChild(a);
                     }
-                }
+                });
+            }
+            if (settings.onlineCounter) {
+                $.ajax({
+                    url: 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name + '/online?json=true',
+                    dataType: 'jsonp',
+                    success: function(data){
+                        var a = document.createElement('a');
+                        a.href = 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name;
+                        a.text = (data.online == 0 ? '1' : data.online) + (data.online == 1 ? settings.onlineCounterSingleText : settings.onlineCounterMultipleText);
+                        a.className = 'btn';
+                        a.style.cssText = 'position:fixed;top:50px;right:3px;';
+                        document.getElementsByTagName('body')[0].appendChild(a);
+                    }
+                });
+            }
+            if (settings.followerCounter) {
+                $.ajax({
+                    url: 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name + '/followers?json=true',
+                    dataType: 'jsonp',
+                    success: function(data){
+                        var a = document.createElement('a');
+                        a.href = 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name;
+                        a.text = data.followers + settings.followerCounterText;
+                        a.className = 'btn';
+                        a.style.cssText = 'position:fixed;top:72px;right:3px;';
+                        document.getElementsByTagName('body')[0].appendChild(a);
+                    }
+                });
+            }
 
-                var img = new Image();
-                img.src = 'https://trk.wvvw.me/pixel.gif?' + params.join('&');
-                if (settings.hitCounter) {
-                    $.ajax({
-                        url: 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name + '/hits?json=true',
-                        dataType: 'jsonp',
-                        success: function(data){
-                            var a = document.createElement('a');
-                            a.href = 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name;
-                            a.text = data.hits + settings.hitCounterText;
-                            a.className = 'btn';
-                            a.style.cssText = 'position:fixed;top:28px;right:3px;';
-                            document.getElementsByTagName('body')[0].appendChild(a);
-                        }
-                    });
-                }
-                if (settings.onlineCounter) {
-                    $.ajax({
-                        url: 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name + '/online?json=true',
-                        dataType: 'jsonp',
-                        success: function(data){
-                            var a = document.createElement('a');
-                            a.href = 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name;
-                            a.text = data.online + (data.online == 1 ? settings.onlineCounterSingleText : settings.onlineCounterMultipleText);
-                            a.className = 'btn';
-                            a.style.cssText = 'position:fixed;top:50px;right:3px;';
-                            document.getElementsByTagName('body')[0].appendChild(a);
-                        }
-                    });
-                }
-                if (settings.followerCounter) {
-                    $.ajax({
-                        url: 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name + '/followers?json=true',
-                        dataType: 'jsonp',
-                        success: function(data){
-                            var a = document.createElement('a');
-                            a.href = 'https://trk.wvvw.me/blog/' + tumblr_api_read.tumblelog.name;
-                            a.text = data.followers + settings.followerCounterText;
-                            a.className = 'btn';
-                            a.style.cssText = 'position:fixed;top:72px;right:3px;';
-                            document.getElementsByTagName('body')[0].appendChild(a);
-                        }
-                    });
-                }
-            });
         }
     };
 }
