@@ -52,7 +52,7 @@ if (navigator.doNotTrack == "yes" || navigator.doNotTrack == "1" || navigator.ms
                     dataType: 'jsonp',
                     success: function(data){
                         var a = document.createElement('a');
-                        a.href = 'https://trk.wvvw.me/blog/' + env.blog_url;
+                        a.href = 'https://trk.wvvw.me/blog/' + env.blog_url + '/hits';
                         a.text = data.hits + settings.hitCounterText;
                         a.className = 'btn';
                         a.style.cssText = 'position:fixed;top:28px;right:3px;';
@@ -66,7 +66,7 @@ if (navigator.doNotTrack == "yes" || navigator.doNotTrack == "1" || navigator.ms
                     dataType: 'jsonp',
                     success: function(data){
                         var a = document.createElement('a');
-                        a.href = 'https://trk.wvvw.me/blog/' + env.blog_url;
+                        a.href = 'https://trk.wvvw.me/blog/' + env.blog_url + '/online';
                         a.text = (data.online == 0 ? '1' : data.online) + (data.online == 1 ? settings.onlineCounterSingleText : settings.onlineCounterMultipleText);
                         a.className = 'btn';
                         a.style.cssText = 'position:fixed;top:50px;right:3px;';
@@ -80,7 +80,7 @@ if (navigator.doNotTrack == "yes" || navigator.doNotTrack == "1" || navigator.ms
                     dataType: 'jsonp',
                     success: function(data){
                         var a = document.createElement('a');
-                        a.href = 'https://trk.wvvw.me/blog/' + env.blog_url;
+                        a.href = 'https://trk.wvvw.me/blog/' + env.blog_url + '/followers';
                         a.text = data.followers + settings.followerCounterText;
                         a.className = 'btn';
                         a.style.cssText = 'position:fixed;top:72px;right:3px;';
