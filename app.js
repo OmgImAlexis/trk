@@ -82,6 +82,7 @@ app.get('/blog/:blog_url', function(req, res) {
 });
 
 app.get('/blog/:blog_url/hits', function(req, res) {
+    var blogUrl = req.params.blog_url;
     Metric.count({ 'eventData.blog_url': req.params.blog_url }, function(err, hits){
         if(req.query.callback || req.query.json){
             res.jsonp({
@@ -95,7 +96,8 @@ app.get('/blog/:blog_url/hits', function(req, res) {
                         createdAt: {
                             $gte: new Date(new Date().setDate(new Date().getDate()-1)),
                             $lt: new Date(new Date().setDate(new Date().getDate()))
-                        }
+                        },
+                        'eventData.blog_url': blogUrl
                     }).exec(function(err, count){
                         if(err) console.log(err);
                         callback(null, {
@@ -109,7 +111,8 @@ app.get('/blog/:blog_url/hits', function(req, res) {
                         createdAt: {
                             $gte: new Date(new Date().setDate(new Date().getDate()-2)),
                             $lt: new Date(new Date().setDate(new Date().getDate()-1))
-                        }
+                        },
+                        'eventData.blog_url': blogUrl
                     }).exec(function(err, count){
                         if(err) console.log(err);
                         callback(null, {
@@ -123,7 +126,8 @@ app.get('/blog/:blog_url/hits', function(req, res) {
                         createdAt: {
                             $gte: new Date(new Date().setDate(new Date().getDate()-3)),
                             $lt: new Date(new Date().setDate(new Date().getDate()-2))
-                        }
+                        },
+                        'eventData.blog_url': blogUrl
                     }).exec(function(err, count){
                         if(err) console.log(err);
                         callback(null,  {
@@ -137,7 +141,8 @@ app.get('/blog/:blog_url/hits', function(req, res) {
                         createdAt: {
                             $gte: new Date(new Date().setDate(new Date().getDate()-3)),
                             $lt: new Date(new Date().setDate(new Date().getDate()-4))
-                        }
+                        },
+                        'eventData.blog_url': blogUrl
                     }).exec(function(err, count){
                         if(err) console.log(err);
                         callback(null,  {
@@ -151,7 +156,8 @@ app.get('/blog/:blog_url/hits', function(req, res) {
                         createdAt: {
                             $gte: new Date(new Date().setDate(new Date().getDate()-4)),
                             $lt: new Date(new Date().setDate(new Date().getDate()-5))
-                        }
+                        },
+                        'eventData.blog_url': blogUrl
                     }).exec(function(err, count){
                         if(err) console.log(err);
                         callback(null,  {
@@ -165,7 +171,8 @@ app.get('/blog/:blog_url/hits', function(req, res) {
                         createdAt: {
                             $gte: new Date(new Date().setDate(new Date().getDate()-5)),
                             $lt: new Date(new Date().setDate(new Date().getDate()-6))
-                        }
+                        },
+                        'eventData.blog_url': blogUrl
                     }).exec(function(err, count){
                         if(err) console.log(err);
                         callback(null,  {
@@ -179,7 +186,8 @@ app.get('/blog/:blog_url/hits', function(req, res) {
                         createdAt: {
                             $gte: new Date(new Date().setDate(new Date().getDate()-6)),
                             $lt: new Date(new Date().setDate(new Date().getDate()-7))
-                        }
+                        },
+                        'eventData.blog_url': blogUrl
                     }).exec(function(err, count){
                         if(err) console.log(err);
                         callback(null,  {
