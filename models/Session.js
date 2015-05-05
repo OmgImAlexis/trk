@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 var sessionSchema = new mongoose.Schema({
     lastOnline: {
         type: Date,
-        expires: 30,
+        expires: 60*5,
         default: Date.now
     },
     blog_url: String,
