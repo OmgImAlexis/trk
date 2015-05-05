@@ -67,7 +67,7 @@ if (navigator.doNotTrack == "yes" || navigator.doNotTrack == "1" || navigator.ms
                     success: function(data){
                         var a = document.createElement('a');
                         a.href = 'https://trk.wvvw.me/blog/' + env.blog_url + '/online';
-                        a.text = (data.online == 0 ? '1' : data.online) + (data.online == 1 ? settings.onlineCounterSingleText : settings.onlineCounterMultipleText);
+                        a.text = data.online + (data.online === 1 ? settings.onlineCounterSingleText : settings.onlineCounterMultipleText);
                         a.className = 'btn';
                         a.style.cssText = 'position:fixed;top:50px;right:3px;';
                         document.getElementsByTagName('body')[0].appendChild(a);
